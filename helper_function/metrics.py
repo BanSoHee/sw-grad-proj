@@ -1,6 +1,8 @@
+from sklearn.metrics import accuracy_score, f1_score
+
 def metrics(y, pred):
 
-    acc = 0
-    f1 = 0
+    acc = accuracy_score(y, pred)
+    f1 = f1_score(y, pred, average='macro')
 
-    return
+    return round(acc, 5), round(f1, 5)

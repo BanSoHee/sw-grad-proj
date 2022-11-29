@@ -43,4 +43,4 @@ def BT_jp2ko(text):
 
 ''' sample '''
 # get_translate('안녕하세요!', 'ko', 'en')
-# BT_en2ko('hello')
+# BT_en2ko('hello!')
