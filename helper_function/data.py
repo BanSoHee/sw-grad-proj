@@ -6,7 +6,7 @@ def load_data(dir):
 
     return df
 
-
+'''
 # load data
 train = load_data(r'C:\Project\sw-grad-proj\data\ratings_train.txt')
 test = load_data(r'C:\Project\sw-grad-proj\data\ratings_test.txt')
@@ -26,3 +26,4 @@ print('train null : ')
 print(train.isnull().sum())
 print('test null : ')
 print(test.isnull().sum())
+'''

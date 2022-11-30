@@ -6,7 +6,7 @@ def get_translate(text, inlang, outlang):
     translator = Translator()
     trans = translator.translate(text, src=inlang, dest=outlang)
 
-    print(f'translation result : {trans.text}')
+    # print(f'translation result : {trans.text}')
 
     return trans.text
 
@@ -15,32 +15,33 @@ def get_translate(text, inlang, outlang):
 # ko to en
 def BT_ko2en(text):
 
-    get_translate(text, 'ko', 'en')
+    out = get_translate(text, 'ko', 'en')
 
-    return
+    return out
 
 # en to ko
 def BT_en2ko(text):
 
-    get_translate(text, 'en', 'ko')
+    out = get_translate(text, 'en', 'ko')
 
-    return
+    return out
 
 # ko to jp
 def BT_ko2jp(text):
 
-    get_translate(text, 'ko', 'jp')
+    out = get_translate(text, 'ko', 'ja')
 
-    return
+    return out
 
 # jp to ko
 def BT_jp2ko(text):
 
-    get_translate(text, 'jp', 'ko')
+    out = get_translate(text, 'ja', 'ko')
 
-    return
+    return out
 
 
 ''' sample '''
 # get_translate('안녕하세요!', 'ko', 'en')
-# BT_en2ko('hello!')
+# out = BT_en2ko('hello!')
+# print(out)
