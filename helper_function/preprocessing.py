@@ -1,3 +1,5 @@
+import re
+
 ''' 데이터 전처리 '''
 '''
     1) 데이터 중복 제거
@@ -12,9 +14,10 @@
 '''
 
 # 데이터 중복 제거
-def drop_duplicates(df, colname):
+def drop_duplicates(df):
 
-    df.drop_duplicates(subset=[colname], inplace=True)
+    # df.drop_duplicates(subset=[colname], inplace=True)
+    df.drop_duplicates(inplace=True)
 
     return df
 
@@ -32,7 +35,7 @@ def text_cleansing(text):
 
     hangul = re.compile('[^ ㄱ-ㅣㅏ-ㅣ가-힣]+') # 한글이 아닌 텍스트를 찾음
     
-    return hangul.sub('', text).split() # .sub(치환할 문자열, target text)
+    return hangul.sub('', text) # .sub(치환할 문자열, target text)
 
 
 # 불용어 제거

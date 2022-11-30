@@ -7,6 +7,7 @@ from helper_function import aug_bt
 
 import pandas as pd
 import numpy as np
+import re
 
 from tqdm import tqdm
 tqdm.pandas() # progress
@@ -48,7 +49,7 @@ def train(X, y):
         print('Done. (split) \n')
 
         # tr aug
-        out_en = X_tr.iloc[:5].progress_apply(lambda x : aug_bt.BT_ko2en(x)) # iloc 삭제
+        out_en = X_tr.iloc[:2].progress_apply(lambda x : aug_bt.BT_ko2en(x)) # iloc 삭제
         out_en = out_en.apply(lambda x : aug_bt.BT_en2ko(x))
         print('Done. (aug en)')
         '''
@@ -56,13 +57,23 @@ def train(X, y):
         out_jp = out_jp.apply(lambda x : aug_bt.BT_jp2ko(x))
         print('Done. (aug jp)')
         '''
-        print('Done. (aug) \n')
+        print('Done. (aug)')
         
         # tr concat : origin + aug
-        X_tr_aug = pd.concat([X_tr.iloc[:5], out_en], ignore_index=True) # iloc 삭제
-        print('Done. (concat) \n')  
-
+        X_tr_aug = pd.concat([X_tr.iloc[:2], out_en], ignore_index=True) # iloc 삭제
+        print('Done. (concat)')
+        
         # tr preprocessing
+        X_tr_aug = preprocessing.drop_duplicates(X_tr_aug)
+        print('Done. (drop duplicates)')
+
+        X_tr_aug = preprocessing.drop_null(X_tr_aug)
+        print('Done. (drop null)')
+
+        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.text_cleansing(x))
+        print('Done. (text cleansing)')
+        print(X_tr_aug)
+        
         break
 
         # te preprocessing
