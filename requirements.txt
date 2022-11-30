@@ -2,3 +2,7 @@
 # https://pypi.org/project/googletrans/
 # https://alliswellv2030.tistory.com/7
 pip install googletrans==4.0.0-rc1
+
+# tokenization
+# window10 install MeCab
+# https://wonhwa.tistory.com/49
