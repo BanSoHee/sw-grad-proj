@@ -47,9 +47,12 @@ def del_stopwords(text):
 
 
 # 토큰화
-def text_tokenize(df):
+def text_tokenize(text):
 
-    return
+    mecab = Mecab(r'C:\mecab\mecab-ko-dic')
+    out = mecab.morphs(text)
+
+    return out
 
 
 # 벡터화 (countervec)
@@ -68,4 +71,6 @@ def encoding_tf(df):
 # train = drop_duplicates(train, 'document')
 # train = drop_null(train)
 # train['document'] = train['document'].apply(lambda x : text_cleansing(x))
+# train['document'] = train['document'].apply(lambda x : del_stopwords(x))
+# train['document'] = train['document'].apply(lambda x : text_tokenize(x))
 # 
