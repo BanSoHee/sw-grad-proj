@@ -48,19 +48,25 @@ def train(X, y):
         y_tr, y_val = y[tr_idx], y[val_idx]
         print('Done. (split) \n')
 
+        ''' del '''
+        X_tr = X_tr.iloc[:2]
+        X_val = X_val.iloc[:2]
+        y_tr = y_tr.iloc[:2]
+        y_val = y_val.iloc[:2]
+
         # tr aug
-        out_en = X_tr.iloc[:2].progress_apply(lambda x : aug_bt.BT_ko2en(x)) # iloc 삭제
+        out_en = X_tr.progress_apply(lambda x : aug_bt.BT_ko2en(x))
         out_en = out_en.apply(lambda x : aug_bt.BT_en2ko(x))
         print('Done. (aug en)')
         '''
-        out_jp = X_tr.iloc[:5].progress_apply(lambda x : aug_bt.BT_ko2jp(x)) # iloc 삭제
+        out_jp = X_tr.progress_apply(lambda x : aug_bt.BT_ko2jp(x))
         out_jp = out_jp.apply(lambda x : aug_bt.BT_jp2ko(x))
         print('Done. (aug jp)')
         '''
         print('Done. (aug)')
         
         # tr concat : origin + aug
-        X_tr_aug = pd.concat([X_tr.iloc[:2], out_en], ignore_index=True) # iloc 삭제
+        X_tr_aug = pd.concat([X_tr, out_en], ignore_index=True)
         print('Done. (concat)')
         
         # tr preprocessing
