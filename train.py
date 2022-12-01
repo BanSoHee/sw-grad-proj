@@ -4,6 +4,9 @@ from sklearn.model_selection import StratifiedKFold
 from helper_function import data
 from helper_function import preprocessing
 from helper_function import aug_bt
+from helper_function import metrics
+
+from lightgbm import LGBMClassifier
 
 import pandas as pd
 import numpy as np
@@ -13,6 +16,7 @@ from tqdm import tqdm
 tqdm.pandas() # progress
 
 
+# train.py start
 print('\n== start train.py ==\n')
 
 # 데이터 로드
@@ -23,6 +27,9 @@ print(f'df shape : {df.shape}')
 X = df['document']
 y = df['label']
 print(f'X, y shape : {X.shape}, {y.shape}\n')
+
+# model
+model_list = []
 
 
 def train(X, y):
@@ -45,6 +52,7 @@ def train(X, y):
         # == split ==
         X_tr, X_val = X[tr_idx], X[val_idx]
         y_tr, y_val = y[tr_idx], y[val_idx]
+        X_tr, X_val, y_tr, y_val = pd.DataFrame(X_tr), pd.DataFrame(X_val), pd.DataFrame(y_tr), pd.DataFrame(y_val)
         print('Done. (split) \n')
 
         ''' del '''
@@ -55,46 +63,47 @@ def train(X, y):
         ''' del '''
 
         # == tr aug ==
-        out_en = X_tr.progress_apply(lambda x : aug_bt.BT_ko2en(x))
-        out_en = out_en.apply(lambda x : aug_bt.BT_en2ko(x))
-        print('Done. (aug en)')
-        '''
-        out_jp = X_tr.progress_apply(lambda x : aug_bt.BT_ko2jp(x))
-        out_jp = out_jp.apply(lambda x : aug_bt.BT_jp2ko(x))
-        print('Done. (aug jp)')
-        '''
+        out_en = X_tr.copy()
+        out_en['document'] = X_tr['document'].progress_apply(lambda x : aug_bt.BT_ko2en(x))
+        out_en['document'] = out_en['document'].apply(lambda x : aug_bt.BT_en2ko(x))
+        out_en_y = y_tr.copy()
         print('Done. (aug)')
         
         # tr concat : origin + aug
         X_tr_aug = pd.concat([X_tr, out_en], ignore_index=True)
+        y_tr_fin = pd.concat([y_tr, out_en_y], ignore_index=True)
         print('Done. (concat)')
         
         # == tr preprocessing ==
-        X_tr_aug = preprocessing.drop_duplicates(X_tr_aug) # 데이터 중복 제거
-        print('Done. (drop duplicates)')
+        X_tr_aug['document'] = preprocessing.drop_duplicates(X_tr_aug['document']) # 데이터 중복 제거
+        X_tr_aug['document'] = preprocessing.drop_null(X_tr_aug['document']) # 결측치 제거
+        X_tr_aug['document'] = X_tr_aug['document'].apply(lambda x : preprocessing.text_cleansing(x)) # 텍스트 킄렌징
+        X_tr_aug['document'] = X_tr_aug['document'].apply(lambda x : preprocessing.text_tokenize(x))  # 토큰화
+        X_tr_aug['document'] = X_tr_aug['document'].apply(lambda x : preprocessing.del_stopwords(x))  # 불용어 제거
+        X_tr_fin = preprocessing.encoder_tf(X_tr_aug['document']) # create X_tr_fin & fit_transform tf-idf encoder
+        print('Done. (tr preprocessing)')
 
-        X_tr_aug = preprocessing.drop_null(X_tr_aug) # 결측치 제거
-        print('Done. (drop null)')
+        # == val preprocessing ==
+        X_val['document'] = preprocessing.drop_duplicates(X_val['document'])
+        X_val['document'] = preprocessing.drop_null(X_val['document'])
+        X_val['document'] = X_val['document'].apply(lambda x : preprocessing.text_cleansing(x))
+        X_val['document'] = X_val['document'].apply(lambda x : preprocessing.text_tokenize(x))
+        X_val['document'] = X_val['document'].apply(lambda x : preprocessing.del_stopwords(x))
+        X_val_fin = preprocessing.encoding_tf(X_val['document'])
+        print('Done. (val preprocessing) \n')
 
-        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.text_cleansing(x)) # 텍스트 킄렌징
-        print('Done. (text cleansing)')
-        
-        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.text_tokenize(x)) # 토큰화
-        print('Done. (tokenization)')
+        # == train model ==
+        model = LGBMClassifier()
+        model.fit(X_tr_fin, y_tr_fin) # , callbacks=[tqdm_callback])
+        pred = model.predict(X_val_fin)
+        acc, f1 = metrics.metrics(y_val, pred)
+        print(f'acc : {acc}')
+        print(f'f1 : {f1}')
+        print('Done. (train model)')
 
-        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.del_stopwords(x)) # 불용어 제거
-        print('Done. (del stopwords)')
-
-        X_tr_fin = preprocessing.encoder_tf(X_tr_aug) # create X_tr_fin & fit_transform tf-idf encoder
-        print('Done. (X_tr_fin & encoder)')
-
-        # val preprocessing
+        # == eval moel ==
 
         break
-
-        # train model
-
-        # eval moel
 
         # save best model
 

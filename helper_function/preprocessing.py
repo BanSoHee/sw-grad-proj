@@ -108,4 +108,4 @@ def encoding_tf(df):
 # train['document'] = train['document'].apply(lambda x : del_stopwords(x))
 # train['document'] = train['document'].apply(lambda x : text_tokenize(x))
 # encoder_tf(train)
-# X_te = encoding_tf(test, 'document')
+# X_te = encoding_tf(test)
