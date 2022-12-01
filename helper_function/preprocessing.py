@@ -87,6 +87,20 @@ def encoder_tf(df):
 
     return out # out = X_tr ecoding result
 
+# 벡터화 : save best tf-idf
+def save_encoder_tf(df):
+
+    df = df.apply(lambda x : ' '.join(x))
+
+    tfvec = TfidfVectorizer()
+    out = tfvec.fit_transform(df)
+
+    # tfvec = encoder
+    with open(r'C:\Project\sw-grad-proj\result\best_tfvec.pkl', 'wb') as f:
+        pickle.dump(tfvec, f)
+
+    return out # out = X_tr ecoding result
+
 
 # 벡터화 : transform (tf-idf)
 def encoding_tf(df):
@@ -94,6 +108,19 @@ def encoding_tf(df):
     df = df.apply(lambda x : ' '.join(x))
 
     with open(r'C:\Project\sw-grad-proj\result\tfvec.pkl', 'rb') as f:
+        tfvec = pickle.load(f)
+        
+    out = tfvec.transform(df)
+
+    return out # out = X_te ecoding result
+
+
+# 벡터화 : transform with best_tfvec
+def best_encoding_tf(df):
+
+    df = df.apply(lambda x : ' '.join(x))
+
+    with open(r'C:\Project\sw-grad-proj\result\best_tfvec.pkl', 'rb') as f:
         tfvec = pickle.load(f)
         
     out = tfvec.transform(df)

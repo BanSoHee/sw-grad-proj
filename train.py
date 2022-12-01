@@ -11,9 +11,13 @@ from lightgbm import LGBMClassifier
 import pandas as pd
 import numpy as np
 import re
+import pickle
 
 from tqdm import tqdm
 tqdm.pandas() # progress
+
+import warnings
+warnings.filterwarnings('ignore')
 
 
 # train.py start
@@ -28,7 +32,7 @@ X = df['document']
 y = df['label']
 print(f'X, y shape : {X.shape}, {y.shape}\n')
 
-# model
+# model list
 model_list = []
 
 
@@ -40,6 +44,7 @@ def train(X, y):
     k = kfold.get_n_splits(X, y)
     print(f'split k : {k}')
     cnt_kfold = 1
+    best_acc, best_f1 = 0, 0 # to save best model
 
     # == k-fold idx ==
     for tr_idx, val_idx in kfold.split(X, y):
@@ -93,27 +98,32 @@ def train(X, y):
         print('Done. (val preprocessing) \n')
 
         # == train model ==
-        model = LGBMClassifier()
-        model.fit(X_tr_fin, y_tr_fin) # , callbacks=[tqdm_callback])
-        pred = model.predict(X_val_fin)
-        acc, f1 = metrics.metrics(y_val, pred)
-        print(f'acc : {acc}')
-        print(f'f1 : {f1}')
-        print('Done. (train model)')
+        clf = LGBMClassifier()
+        clf.fit(X_tr_fin, y_tr_fin) # , callbacks=[tqdm_callback])
 
         # == eval moel ==
+        pred = clf.predict(X_val_fin)
+        acc, f1 = metrics.metrics(y_val, pred)
+        print(f'tr acc : {acc}')
+        print(f'tr f1 : {f1}')
+        print('Done. (train/eval model) \n')
 
-        break
-
-        # save best model
-
+        # == check best model == 
+        if acc > best_acc:
+            # == save best model and vectorizer ==
+            best_acc = acc
+            best_model = clf
+            pickle.dump(best_model, open(r'C:\Project\sw-grad-proj\result\best_model.pkl', 'wb')) # save best model
+            preprocessing.save_encoder_tf(X_tr_aug['document']) # save best encoder
+            
         cnt_kfold += 1
 
+    # == load best model ==
+    # load_model = pickle.load(open(r'C:\Project\sw-grad-proj\result\best_model.pkl', 'rb'))
+    # X_te_fin = preprocessing.best_encoding_tf(X_te['document'])
+
     return
 
-def valid(val):
 
-    return
-
-
+''' sample '''
 train(X, y)
