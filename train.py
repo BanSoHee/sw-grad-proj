@@ -20,7 +20,6 @@ df = data.load_data(r'C:\Project\sw-grad-proj\data\ratings_train.txt')
 print(f'df shape : {df.shape}')
 
 # X, y
-# df.drop(columns=['id'], inplace=True)
 X = df['document']
 y = df['label']
 print(f'X, y shape : {X.shape}, {y.shape}\n')
@@ -35,7 +34,7 @@ def train(X, y):
     print(f'split k : {k}')
     cnt_kfold = 1
 
-    # k-fold idx
+    # == k-fold idx ==
     for tr_idx, val_idx in kfold.split(X, y):
 
         # k-fold
@@ -43,7 +42,7 @@ def train(X, y):
         print(f'TRAIN : {tr_idx}')
         print(f'VALID : {val_idx}')
 
-        # split
+        # == split ==
         X_tr, X_val = X[tr_idx], X[val_idx]
         y_tr, y_val = y[tr_idx], y[val_idx]
         print('Done. (split) \n')
@@ -53,8 +52,9 @@ def train(X, y):
         X_val = X_val.iloc[:2]
         y_tr = y_tr.iloc[:2]
         y_val = y_val.iloc[:2]
+        ''' del '''
 
-        # tr aug
+        # == tr aug ==
         out_en = X_tr.progress_apply(lambda x : aug_bt.BT_ko2en(x))
         out_en = out_en.apply(lambda x : aug_bt.BT_en2ko(x))
         print('Done. (aug en)')
@@ -69,24 +69,32 @@ def train(X, y):
         X_tr_aug = pd.concat([X_tr, out_en], ignore_index=True)
         print('Done. (concat)')
         
-        # tr preprocessing
-        X_tr_aug = preprocessing.drop_duplicates(X_tr_aug)
+        # == tr preprocessing ==
+        X_tr_aug = preprocessing.drop_duplicates(X_tr_aug) # 데이터 중복 제거
         print('Done. (drop duplicates)')
 
-        X_tr_aug = preprocessing.drop_null(X_tr_aug)
+        X_tr_aug = preprocessing.drop_null(X_tr_aug) # 결측치 제거
         print('Done. (drop null)')
 
-        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.text_cleansing(x))
+        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.text_cleansing(x)) # 텍스트 킄렌징
         print('Done. (text cleansing)')
-        print(X_tr_aug)
         
+        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.text_tokenize(x)) # 토큰화
+        print('Done. (tokenization)')
+
+        X_tr_aug = X_tr_aug.apply(lambda x : preprocessing.del_stopwords(x)) # 불용어 제거
+        print('Done. (del stopwords)')
+
+        X_tr_fin = preprocessing.encoder_tf(X_tr_aug) # create X_tr_fin & fit_transform tf-idf encoder
+        print('Done. (X_tr_fin & encoder)')
+
+        # val preprocessing
+
         break
 
-        # te preprocessing
+        # train model
 
-        # train
-
-        # eval
+        # eval moel
 
         # save best model
 

@@ -1,12 +1,21 @@
+import pandas as pd
+import numpy as np
 import re
+
+from konlpy.tag import Mecab
+import MeCab
+import pickle
+
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 ''' 데이터 전처리 '''
 '''
     1) 데이터 중복 제거
     2) 결측치 제거
     3) 텍스트 클렌징
-    4) 불용어 제거
-    5) 토큰화
+    4) 토큰화
+    5) 불용어 제거
     6) 벡터화
     -) 문장 길이 분포 확인 후 적절한 최대 문자 길이 지정
     -) 최대 문자 길이에 따른 패딩 추가
@@ -65,12 +74,12 @@ def encoding_cnt(df):
 
 
 # 벡터화 : fit_transform (tf-idf)
-def encoder_tf(df, colname):
+def encoder_tf(df):
 
-    df[colname] = df[colname].apply(lambda x : ' '.join(x))
+    df = df.apply(lambda x : ' '.join(x))
 
     tfvec = TfidfVectorizer()
-    out = tfvec.fit_transform(df[colname])
+    out = tfvec.fit_transform(df)
 
     # tfvec = encoder
     with open(r'C:\Project\sw-grad-proj\result\tfvec.pkl', 'wb') as f:
@@ -80,14 +89,14 @@ def encoder_tf(df, colname):
 
 
 # 벡터화 : transform (tf-idf)
-def encoding_tf(df, colname):
+def encoding_tf(df):
 
-    df[colname] = df[colname].apply(lambda x : ' '.join(x))
+    df = df.apply(lambda x : ' '.join(x))
 
     with open(r'C:\Project\sw-grad-proj\result\tfvec.pkl', 'rb') as f:
         tfvec = pickle.load(f)
         
-    out = tfvec.transform(df[colname])
+    out = tfvec.transform(df)
 
     return out # out = X_te ecoding result
 
@@ -98,5 +107,5 @@ def encoding_tf(df, colname):
 # train['document'] = train['document'].apply(lambda x : text_cleansing(x))
 # train['document'] = train['document'].apply(lambda x : del_stopwords(x))
 # train['document'] = train['document'].apply(lambda x : text_tokenize(x))
-# encoder_tf(train, 'document')
+# encoder_tf(train)
 # X_te = encoding_tf(test, 'document')
